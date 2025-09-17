@@ -41,15 +41,14 @@ defmodule Bootleg.Mixfile do
   defp deps do
     [
       {:sshkit, "0.3.0"},
-      {:ssh_client_key_api, "~> 0.2.1"},
-      {:credo, "~> 0.10", only: [:dev, :test]},
+      {:ssh_client_key_api, path: "/home/spinlock/src/ssh_client_key_api"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.6", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.18", only: [:docs], runtime: false},
-      {:excoveralls, "~> 0.10", only: [:test]},
+      {:excoveralls, "~> 0.18", only: [:test]},
       {:mock, "~> 0.3.3", only: [:test]},
-      {:junit_formatter, "~> 2.0", only: [:test]},
-      {:temp, "~> 0.4.3", only: [:test]},
-      {:distillery, ">= 2.1.0", runtime: false}
+      {:junit_formatter, "~> 3.0", only: [:test]},
+      {:temp, "~> 0.4.3", only: [:test]}
     ]
   end
 
