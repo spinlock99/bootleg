@@ -69,7 +69,7 @@ task :remote_generate_release do
   UI.info("Generating release...")
 
   remote :build, cd: source_path do
-    "MIX_ENV=#{mix_env} mix distillery.release #{release_args}"
+    "MIX_ENV=#{mix_env} mix release #{release_args}"
   end
 end
 
@@ -120,18 +120,18 @@ task :download_release do
   remote_path =
     Path.join(
       source_path,
-      "_build/#{mix_env}/rel/#{app_name}/releases/#{app_version}/#{app_name}.tar.gz"
+      "_build/#{mix_env}/rel/#{app_name}"
     )
 
   local_archive_folder = "#{File.cwd!()}/releases"
-  local_path = Path.join(local_archive_folder, "#{app_version}.tar.gz")
+  local_path = Path.join(local_archive_folder, "#{app_version}")
 
   UI.info("Downloading release archive")
   File.mkdir_p!(local_archive_folder)
 
   download(:build, remote_path, local_path)
 
-  UI.info("Saved: releases/#{app_version}.tar.gz")
+  UI.info("Saved: releases/#{app_version}")
 end
 
 task :reset_remote do
