@@ -133,7 +133,7 @@ task :download_release do
 
   download(:build, remote_path, local_path)
 
-  UI.info("Saved: releases/#{app_version}")
+  UI.info("Saved: releases/#{app_version}.tar.gz")
 end
 
 task :reset_remote do
