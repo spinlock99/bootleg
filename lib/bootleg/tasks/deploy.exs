@@ -18,7 +18,7 @@ task :copy_deploy_release do
   release_workspace = app_role.options[:release_workspace]
   release = "#{Config.version()}.tar.gz"
   source_path = Path.join(release_workspace, release)
-  dest_path = "#{Config.app()}.tar.gz"
+  dest_path = "#{Config.version()}.tar.gz"
 
   UI.info("Copying release archive from release workspace")
 
@@ -28,8 +28,9 @@ task :copy_deploy_release do
 end
 
 task :upload_release do
-  remote_path = "#{Config.app()}.tar.gz"
-  local_archive_folder = "#{File.cwd!()}/releases"
+  UI.info("Upload Release")
+  remote_path = "/var/www/bootleg_test/#{Config.version()}.tar.gz"
+  local_archive_folder = "#{File.cwd!()}/releases/"
   local_path = Path.join(local_archive_folder, "#{Config.version()}.tar.gz")
   UI.info("Uploading release archive")
   upload(:app, local_path, remote_path)

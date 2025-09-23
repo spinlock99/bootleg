@@ -60,6 +60,7 @@ end
 task :remote_generate_release do
   mix_env = config({:mix_env, "prod"})
   source_path = config({:ex_path, ""})
+  app_name = Config.app()
 
   release_args =
     {:release_args, ["--quiet"]}
@@ -70,6 +71,7 @@ task :remote_generate_release do
 
   remote :build, cd: source_path do
     "MIX_ENV=#{mix_env} mix release #{release_args}"
+    "tar -czvf #{app_name}.tar.gz _build/#{mix_env}/rel/#{app_name}/"
   end
 end
 
@@ -120,11 +122,11 @@ task :download_release do
   remote_path =
     Path.join(
       source_path,
-      "_build/#{mix_env}/rel/#{app_name}"
+      "#{app_name}.tar.gz"
     )
 
   local_archive_folder = "#{File.cwd!()}/releases"
-  local_path = Path.join(local_archive_folder, "#{app_version}")
+  local_path = Path.join(local_archive_folder, "#{app_version}.tar.gz")
 
   UI.info("Downloading release archive")
   File.mkdir_p!(local_archive_folder)
