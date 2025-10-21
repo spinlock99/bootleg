@@ -101,7 +101,9 @@ defmodule Bootleg.SSH do
 
       conn
       |> SSHKitSSH.run(cmd, fun: &capture(&1, &2, host), acc: {:cont, {[], nil, %{}}})
-      |> Tuple.append(host)
+      |> Tuple.to_list
+      |> Enum.concat([host])
+      |> List.to_tuple()
     end
 
     Enum.map(context.hosts, run)
