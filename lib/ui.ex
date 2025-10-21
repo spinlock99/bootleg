@@ -122,9 +122,6 @@ defmodule Bootleg.UI do
     end)
   end
 
-  @doc """
-  Output a command destined for a single SSHKit host.
-  """
   def puts_send(%SSHKit.Host{} = host, command) do
     prefix = "[" <> String.pad_trailing(host.name, 10) <> "] "
 
@@ -140,9 +137,7 @@ defmodule Bootleg.UI do
     Enum.each(outputs, &puts_recv/1)
   end
 
-  @doc """
-  Individually handle output tuple.
-  """
+  # Individually handle output tuple.
   def puts_recv(output) when is_tuple(output) do
     case output do
       {:ok, [stdout: out], _status, host} -> split_received_lines(host, out)
@@ -150,18 +145,14 @@ defmodule Bootleg.UI do
     end
   end
 
-  @doc """
-  Convenience function when wanting to output as if we'd received something
-  from a particular set of hosts, e.g. git+ssh output.
-  """
+  # Convenience function when wanting to output as if we'd received something
+  # from a particular set of hosts, e.g. git+ssh output.
   def puts_recv(%SSHKit.Context{} = context, output) when is_binary(output) do
     Enum.each(context.hosts, &puts_recv(&1, output))
   end
 
-  @doc """
-  Convenience function when wanting to output as if we'd received something
-  from a particular host, e.g. git+ssh output.
-  """
+  # Convenience function when wanting to output as if we'd received something
+  # from a particular host, e.g. git+ssh output.
   def puts_recv(%SSHKit.Host{} = host, output) when is_binary(output) do
     split_received_lines(host, output)
   end
