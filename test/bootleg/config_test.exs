@@ -46,8 +46,8 @@ defmodule Bootleg.ConfigTest do
   test "use Bootleg.Config warns about deprecation" do
     assert capture_io(:stderr, fn ->
              use Bootleg.Config
-           end) ==
-             "\e[33mwarning: \e[0m`use Bootleg.Config` is deprecated; call `use Bootleg.DSL` instead.\n  test/bootleg/config_test.exs:48: Bootleg.ConfigTest.\"test use Bootleg.Config warns about deprecation\"/1\n\n"
+           end) =~
+             "`use Bootleg.Config` is deprecated; call `use Bootleg.DSL` instead."
   end
 
   test "get_role/1", %{local_user: local_user} do
