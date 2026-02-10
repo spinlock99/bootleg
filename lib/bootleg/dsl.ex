@@ -132,8 +132,8 @@ defmodule Bootleg.DSL do
   end
 
   defp add_callback(task, position, caller, do: block) do
-    file = caller.file()
-    line = caller.line()
+    file = caller.file
+    line = caller.line
 
     quote do
       hook_number = Bootleg.Config.Agent.increment(:next_hook_number)
@@ -262,8 +262,8 @@ defmodule Bootleg.DSL do
   end
   """
   defmacro task(task, options \\ [], do: block) when is_atom(task) and is_list(options) do
-    file = __CALLER__.file()
-    line = __CALLER__.line()
+    file = __CALLER__.file
+    line = __CALLER__.line
     module_name = module_for_task(task)
 
     quote do
@@ -297,7 +297,7 @@ defmodule Bootleg.DSL do
 
   @doc false
   def warn_task_redefined({:module, _}, task, macro, override) do
-    {orig_file, orig_line} = macro.location
+    {orig_file, orig_line} = macro.location()
 
     unless override do
       UI.warn(
