@@ -42,14 +42,15 @@ end
 task :compile do
   mix_env = config({:mix_env, "prod"})
   source_path = config({:ex_path, ""})
+  app_name = Config.app()
 
-  UI.info("Building on remote server with mix env #{mix_env}...")
+  UI.info("⚡ Building on remote server with mix env #{mix_env}...")
 
   remote :build, cd: source_path do
     "MIX_ENV=#{mix_env} mix local.rebar --force"
     "MIX_ENV=#{mix_env} mix local.hex --if-missing --force"
-    "MIX_ENV=#{mix_env} mix deps.get --only=#{mix_env}"
-    "MIX_ENV=#{mix_env} mix do clean, compile --force"
+    "MIX_ENV=#{mix_env} mix deps.get --only=#{mix_env} 2>&1 | grep -E \"^\(Resolving|[Ee]rror\)\" || true"
+    "MIX_ENV=#{mix_env} mix do clean, compile --force 2>&1 | grep -E \"^\(Generated #{app_name}|[Ee]rror\)\" || true"
   end
 end
 
@@ -63,14 +64,14 @@ task :remote_generate_release do
   app_name = Config.app()
 
   release_args =
-    {:release_args, ["--quiet"]}
+    {:release_args, []}
     |> config()
     |> Enum.join(" ")
 
-  UI.info("Generating release...")
+  UI.info("⚡ Generating release...")
 
   remote :build, cd: source_path do
-    "MIX_ENV=#{mix_env} mix release #{release_args}"
+    "MIX_ENV=#{mix_env} mix release #{release_args} 2>&1 | grep -E \"^\(Generated|[Ee]rror\)\" || true"
   end
 
   source_path =
@@ -79,8 +80,9 @@ task :remote_generate_release do
       "/_build/#{mix_env}/rel/"
     ])
 
+  UI.info("⚡ Creating Tarball...")
   remote :build, cd: source_path  do
-    "tar -czvf #{app_name}.tar.gz #{app_name}/"
+    "tar -czf #{app_name}.tar.gz #{app_name}/"
   end
 end
 
@@ -92,8 +94,9 @@ task :clean do
     |> Enum.join(" ")
 
   if locations != "" do
+    UI.info("⚡ Removing #{locations}...")
     remote :build do
-      "rm -rvf #{locations}"
+      "rm -rf #{locations}"
     end
   end
 end
@@ -108,13 +111,12 @@ task :copy_build_release do
   source_path =
     Path.join([
       config({:ex_path, ""}),
-      "_build/#{mix_env}/rel/#{app_name}/releases/",
-      "#{app_version}/#{app_name}.tar.gz"
+      "_build/#{mix_env}/rel/#{app_name}.tar.gz"
     ])
 
   dest_path = Path.join(release_workspace, "#{app_version}.tar.gz")
 
-  UI.info("Copying release archive to release workspace")
+  UI.info("⚡ Copying release archive to release workspace")
 
   remote :build do
     "mkdir -p #{release_workspace}"
@@ -137,17 +139,17 @@ task :download_release do
   local_archive_folder = "#{File.cwd!()}/releases"
   local_path = Path.join(local_archive_folder, "#{app_version}.tar.gz")
 
-  UI.info("Downloading release archive")
+  UI.info("⚡ Downloading release archive")
   File.mkdir_p!(local_archive_folder)
 
   download(:build, remote_path, local_path)
 
-  UI.info("Saved: releases/#{app_version}.tar.gz")
+  UI.info("⚡ Saved: releases/#{app_version}.tar.gz")
 end
 
 task :reset_remote do
   refspec = config({:refspec, "master"})
-  UI.info("Resetting remote hosts to refspec \"#{refspec}\"")
+  UI.info("⚡ Resetting remote hosts to refspec \"#{refspec}\"")
 
   remote :build do
     "git reset --hard #{refspec}"
@@ -203,7 +205,7 @@ task :push_remote do
       false -> []
     end
 
-  UI.info("Pushing new commits with git to: #{user_host_port}")
+  UI.info("⚡ Pushing new commits with git to: #{user_host_port}")
 
   case Git.push(["--tags", push_options, host_url, refspec], env: git_env) do
     {"", 0} ->
@@ -295,7 +297,7 @@ task :pull_remote do
         "/home/#{build_role.user}/#{workspace}"
     end
 
-  UI.info("Pulling new commits with git from: #{repo_url}")
+  UI.info("⚡ Pulling new commits with git from: #{repo_url}")
 
   remote :build, cd: "#{repo_path}/#{Config.app()}.git" do
     "git remote set-url origin #{repo_url}"
