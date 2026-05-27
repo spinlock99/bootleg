@@ -49,18 +49,17 @@ defmodule Bootleg.Tasks.DeployTaskFunctionalTest do
     end)
   end
 
-  @tag role_opts: %{release_workspace: "/fixtures"}
+  @tag role_opts: %{release_workspace: "/project/test/fixtures/releases"}
   test "deploy/1 deploys the release to the target hosts from a remote release_workspace path" do
     alias Bootleg.Config
 
     File.cd!("test/fixtures", fn ->
       capture_io(fn ->
         release_name = "#{Config.version()}.tar.gz"
-        app_name = "#{Config.app()}.tar.gz"
-        assert [{:ok, _, 0, _}] = remote(:app, "[ -f /fixtures/#{release_name} ]")
+        assert [{:ok, _, 0, _}] = remote(:app, "[ -f /project/test/fixtures/releases/#{release_name} ]")
         invoke(:deploy)
-        assert [{:ok, _, 0, _}] = remote(:app, "[ -f #{app_name} ]")
-        assert [{:ok, _, 0, _}] = remote(:app, "[ -f release.txt ]")
+        assert [{:ok, _, 0, _}] = remote(:app, "[ -L current ]")
+        assert [{:ok, _, 0, _}] = remote(:app, "[ -f current/release.txt ]")
       end)
     end)
   end

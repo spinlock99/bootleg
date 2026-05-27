@@ -35,19 +35,22 @@ task :upload_release do
   upload(:app, local_path, remote_path)
 end
 
-# credo:disable-for-next-line Credo.Check.Design.TagTODO
-# TODO: Prepare for Rollback
-# * create releases/ directory
-# * fetch timestamp
-# * unpack into releases/[timestamp]
-# * create revisions.log file
-# * create shared/ directory
-#
 task :unpack_release do
-  remote_path = "#{Config.app()}.tar.gz"
-  UI.info("Unpacking release archive: #{remote_path}")
+  app = Config.app()
+  remote_path = "#{app}.tar.gz"
+  keep_releases = Config.get_key(:keep_releases)
+  UI.info("⚡ Unpacking release archive: #{remote_path}")
 
   remote :app do
-    "tar -zxf #{remote_path}"
+    "mkdir -p releases"
+    "ts=$(date +%Y%m%d%H%M%S) && tar -zxf #{remote_path} && mv #{app} releases/$ts"
+    "ln -sfn releases/$(ls -1t releases/ | head -n 1) current"
+    "rm #{remote_path}"
+  end
+
+  if keep_releases do
+    remote :app do
+      "ls -1dt releases/*/ | tail -n +#{keep_releases + 1} | xargs -I{} rm -rf {}"
+    end
   end
 end
