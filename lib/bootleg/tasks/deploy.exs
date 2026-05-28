@@ -50,6 +50,7 @@ task :unpack_release do
     "tar -zxf #{remote_path} -C releases/"
     "ls -td releases/*/ | head -1 | xargs -I{} ln -sfn {} current"
     "rm #{remote_path}"
+    "touch --reference current/bin/#{app} current/bin/#{app}"
   end
 
   if keep_releases do
