@@ -30,21 +30,25 @@ end
 task :upload_release do
   remote_path = "#{Config.app()}.tar.gz"
   local_archive_folder = "#{File.cwd!()}/releases"
-  local_path = Path.join(local_archive_folder, "#{Config.version()}.tar.gz")
-  UI.info("Uploading release archive")
+  tar_ball = "ls -t #{local_archive_folder} | head -1"
+             |> System.shell()
+             |> elem(0)
+             |> String.trim_trailing()
+  local_path = Path.join(local_archive_folder, tar_ball)
+  UI.info("⚡ Uploading release archive #{tar_ball}")
   upload(:app, local_path, remote_path)
 end
 
 task :unpack_release do
   app = Config.app()
   remote_path = "#{app}.tar.gz"
-  keep_releases = Config.get_key(:keep_releases)
+  keep_releases = Config.get_role(:app).options[:keep_releases]
   UI.info("⚡ Unpacking release archive: #{remote_path}")
 
   remote :app do
-    "mkdir -p releases"
-    "ts=$(date +%Y%m%d%H%M%S) && tar -zxf #{remote_path} && mv #{app} releases/$ts"
-    "ln -sfn releases/$(ls -1t releases/ | head -n 1) current"
+    "mkdir -p releases/"
+    "tar -zxf #{remote_path} -C releases/"
+    "ls -td releases/*/ | head -1 | xargs -I{} ln -sfn {} current"
     "rm #{remote_path}"
   end
 
