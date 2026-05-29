@@ -25,7 +25,7 @@ defmodule Bootleg.Tasks.DeployTaskFunctionalTest do
 
     File.cd!("test/fixtures", fn ->
       capture_io(fn ->
-        assert_raise File.Error, fn -> invoke(:deploy) end
+        assert_raise SSHError, fn -> invoke(:deploy) end
       end)
     end)
   end
